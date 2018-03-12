@@ -1,0 +1,31 @@
+sudo: required
+
+language: python
+python:
+  - "3.5"
+  - "3.6"
+
+services:
+  - docker
+
+before_install:
+  - docker pull apache/marmotta
+  - docker run -d -p 8080:8080 apache/marmotta
+
+install:
+  - pip install -r requirements.txt
+  - pip install coveralls
+
+env:
+  - COLLECTIONS_API_TEST_DB="http://localhost:8080/marmotta/"
+
+# command to run tests
+script:
+    - coverage run --source=src setup.py test
+
+after_success:
+    - if [[ $TRAVIS_PYTHON_VERSION == 3* ]]; then coveralls; fi
+
+branches:
+  only:
+    - master
